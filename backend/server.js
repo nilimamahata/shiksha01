@@ -93,6 +93,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const superadminRoutes = require('./routes/superadminRoutes');
 const testRoutes = require('./routes/testRoutes');
 const videoRoutes = require('./routes/videoRoutes');
+const timetableRoutes = require('./routes/timetableRoutes');
 
 // ... import your other route files here
 
@@ -136,6 +137,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/superadmin', superadminRoutes);
 app.use('/api/tests', testRoutes);
 app.use('/api/video', videoRoutes);
+app.use('/api/timetables', timetableRoutes);
 // ... use your other routes here
 
 // Make Socket.IO available to routes
@@ -145,4 +147,3 @@ app.set('io', io);
 app.use('/courses', express.static(path.join(__dirname, '../coursesF/merncourses/public')));
 
 module.exports = { app, server, io };
-

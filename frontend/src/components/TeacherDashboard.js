@@ -138,6 +138,45 @@ const TeacherDashboard = ({ username, onLogout }) => {
     }
   }, [isDarkMode]);
 
+
+
+  // Handler for timetable changes
+  const handleTimetableChange = (day, period, subject) => {
+    setTimetable(prev => {
+      const newTimetable = { ...prev };
+      if (!newTimetable[selectedClass]) newTimetable[selectedClass] = {};
+      if (!newTimetable[selectedClass][selectedStream]) newTimetable[selectedClass][selectedStream] = {};
+      if (!newTimetable[selectedClass][selectedStream][day]) newTimetable[selectedClass][selectedStream][day] = {};
+      newTimetable[selectedClass][selectedStream][day][period] = subject;
+      return newTimetable;
+    });
+  };
+
+  const handleSaveTimetable = async () => {
+    try {
+      const teacherId = localStorage.getItem('teacherId') || username;
+      const response = await fetch('http://localhost:5001/api/timetables', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          class: selectedClass,
+          stream: selectedStream,
+          timetable,
+          teacherId
+        }),
+      });
+      if (response.ok) {
+        alert('Timetable saved successfully!');
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to save timetable: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error('Error saving timetable:', error);
+      alert('Failed to save timetable');
+    }
+  };
+
   // Add a refresh function for manual data refresh
   const refreshData = () => {
     setLoading(true);
@@ -832,6 +871,28 @@ const TeacherDashboard = ({ username, onLogout }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOff, setIsCameraOff] = useState(false);
 
+  // Schedule states
+  const [selectedClass, setSelectedClass] = useState('8');
+  const [selectedStream, setSelectedStream] = useState('general');
+  const [timetable, setTimetable] = useState({});
+
+  const fetchTimetable = useCallback(async () => {
+    try {
+      const teacherId = localStorage.getItem('teacherId') || username;
+      const response = await fetch(`http://localhost:5001/api/timetables/${selectedClass}/${selectedStream}`);
+      if (response.ok) {
+        const data = await response.json();
+        setTimetable(data.timetable || {});
+      }
+    } catch (error) {
+      console.error('Error fetching timetable:', error);
+    }
+  }, [selectedClass, selectedStream, username]);
+
+  useEffect(() => {
+    fetchTimetable();
+  }, [fetchTimetable]);
+
 
 
 
@@ -845,7 +906,7 @@ const TeacherDashboard = ({ username, onLogout }) => {
       <div className="floating-video-btn">
         <button
           onClick={() => {
-            setActiveTab('video-calls');
+            setActiveTab('live');
             fetchAvailableStudents();
           }}
           title="Start Video Call"
@@ -895,23 +956,45 @@ const TeacherDashboard = ({ username, onLogout }) => {
             📄 Materials
           </button>
           <button
-            className={`nav-link ${activeTab === 'tests' ? 'active' : ''}`}
-            onClick={() => setActiveTab('tests')}
+            className={`nav-link ${activeTab === 'quiz' ? 'active' : ''}`}
+            onClick={() => setActiveTab('quiz')}
           >
-            📝 Tests
+            📝 Quiz
           </button>
           <button
-
-            className={`nav-link ${activeTab === 'video-calls' ? 'active' : ''}`}
+            className={`nav-link ${activeTab === 'assignments' ? 'active' : ''}`}
+            onClick={() => setActiveTab('assignments')}
+          >
+            📋 Assignments
+          </button>
+          <button
+            className={`nav-link ${activeTab === 'announcement' ? 'active' : ''}`}
+            onClick={() => setActiveTab('announcement')}
+          >
+            📢 Announcement
+          </button>
+          <button
+            className={`nav-link ${activeTab === 'upload-video' ? 'active' : ''}`}
+            onClick={() => setActiveTab('upload-video')}
+          >
+            🎥 Upload Video
+          </button>
+          <button
+            className={`nav-link ${activeTab === 'live' ? 'active' : ''}`}
             onClick={() => {
-              setActiveTab('video-calls');
+              setActiveTab('live');
               fetchAvailableStudents();
             }}
           >
-            📹 Video Calls
+            📹 Live
           </button>
           <button
-
+            className={`nav-link ${activeTab === 'schedule' ? 'active' : ''}`}
+            onClick={() => setActiveTab('schedule')}
+          >
+            📅 Schedule
+          </button>
+          <button
             className={`nav-link ${activeTab === 'settings' ? 'active' : ''}`}
             onClick={() => setActiveTab('settings')}
           >
@@ -939,7 +1022,7 @@ const TeacherDashboard = ({ username, onLogout }) => {
             <button
               className="action-btn video-call-btn"
               onClick={() => {
-                setActiveTab('video-calls');
+                setActiveTab('live');
                 fetchAvailableStudents();
               }}
               style={{
@@ -947,7 +1030,7 @@ const TeacherDashboard = ({ username, onLogout }) => {
                 animation: 'pulse 2s infinite'
               }}
             >
-              <span>📹</span> Video Call
+              <span>📹</span> Live
             </button>
 
 
@@ -1093,9 +1176,20 @@ const TeacherDashboard = ({ username, onLogout }) => {
            </div>
          )}
 
-          {activeTab === 'tests' && (
+          {activeTab === 'quiz' && (
             <div className="tests-container">
-              <h2>📝 Your Tests</h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <h2>📝 Your Quizzes</h2>
+                {teacherData?.permissions?.canCreateTests && (
+                  <button
+                    className="action-btn create-btn"
+                    onClick={() => setShowTestModal(true)}
+                    style={{ fontSize: '0.9rem', padding: '0.75rem 1.25rem' }}
+                  >
+                    <span>➕</span> Create New Quiz
+                  </button>
+                )}
+              </div>
               <div className="tests-list">
                 {tests.map((test) => (
                   <div key={test._id} className="test-item">
@@ -1104,8 +1198,7 @@ const TeacherDashboard = ({ username, onLogout }) => {
                       <p>{test.description}</p>
                       <div className="test-details">
                         <span>❓ {test.questions?.length || 0} Questions</span>
-                        <span>⏱️ {test.duration} min</span>
-                        <span>⭐ {test.totalPoints || 'N/A'} Points</span>
+                        <span>⏱️ {test.duration || 60} Minutes</span>
                       </div>
                     </div>
                     <div className="test-actions">
@@ -1113,10 +1206,7 @@ const TeacherDashboard = ({ username, onLogout }) => {
                         className="conduct-btn"
                         onClick={() => handleConductTest(test._id)}
                       >
-                        🎯 Conduct
-                      </button>
-                      <button className="edit-btn">
-                        ✏️ Edit
+                        ▶️ Conduct Test
                       </button>
                       <button
                         className="delete-btn"
@@ -1134,17 +1224,17 @@ const TeacherDashboard = ({ username, onLogout }) => {
                     color: 'var(--secondary-text)',
                     fontSize: '1.1rem'
                   }}>
-                    📝 No tests created yet. Click "Create Test" to assess your students!
+                    📭 No quizzes created yet. Click "Create New Quiz" to get started!
                   </div>
                 )}
               </div>
             </div>
           )}
 
-          {activeTab === 'video-calls' && (
+          {activeTab === 'live' && (
             <div className="video-calls-container">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <h2>📹 Video Calls</h2>
+                <h2>📹 Live Sessions</h2>
                 <button
                   className="action-btn"
                   onClick={fetchAvailableStudents}
@@ -1204,7 +1294,7 @@ const TeacherDashboard = ({ username, onLogout }) => {
                 </div>
               ) : (
                 <div className="video-call-active">
-                  <h3>🎥 Video Call in Progress</h3>
+                  <h3>🎥 Live Session in Progress</h3>
                   <p>Connected with: {currentCall?.student?.name}</p>
                   <button
                     className="end-call-btn"
@@ -1220,7 +1310,7 @@ const TeacherDashboard = ({ username, onLogout }) => {
                       marginTop: '1rem'
                     }}
                   >
-                    🔚 End Call
+                    🔚 End Session
                   </button>
                 </div>
               )}
@@ -1405,6 +1495,141 @@ const TeacherDashboard = ({ username, onLogout }) => {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'schedule' && (
+            <div className="schedule-container">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <h2>📅 Class Schedule</h2>
+                <button
+                  onClick={handleSaveTimetable}
+                  style={{
+                    background: 'linear-gradient(135deg, var(--accent-blue), var(--accent-purple))',
+                    color: 'white',
+                    border: 'none',
+                    padding: '0.75rem 1.5rem',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                    fontWeight: '500'
+                  }}
+                >
+                  💾 Save Timetable
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <div className="form-group" style={{ minWidth: '120px' }}>
+                  <label htmlFor="classSelect">Class</label>
+                  <select
+                    id="classSelect"
+                    value={selectedClass}
+                    onChange={(e) => { setSelectedClass(e.target.value); if (parseInt(e.target.value) < 11) setSelectedStream('general'); }}
+                  >
+                    {Array.from({ length: 5 }, (_, i) => i + 8).map(cls => (
+                      <option key={cls} value={cls.toString()}>{cls}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {parseInt(selectedClass) >= 11 && (
+                  <div className="form-group" style={{ minWidth: '120px' }}>
+                    <label htmlFor="streamSelect">Stream</label>
+                    <select
+                      id="streamSelect"
+                      value={selectedStream}
+                      onChange={(e) => setSelectedStream(e.target.value)}
+                    >
+                      <option value="general">General</option>
+                      <option value="science">Science</option>
+                      <option value="commerce">Commerce</option>
+                      <option value="arts">Arts</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+
+              <div className="timetable-container" style={{ overflowX: 'auto' }}>
+                <table className="timetable" style={{
+                  width: '100%',
+                  borderCollapse: 'collapse',
+                  background: 'var(--glass-bg)',
+                  backdropFilter: 'var(--backdrop-blur)',
+                  borderRadius: 'var(--border-radius)',
+                  boxShadow: 'var(--box-shadow)'
+                }}>
+                  <thead>
+                    <tr>
+                      <th style={{
+                        padding: '1rem',
+                        border: '1px solid var(--border-color)',
+                        background: 'var(--light-blue-bg)',
+                        fontWeight: '600',
+                        color: 'var(--primary-text)'
+                      }}>Day</th>
+                      {Array.from({ length: 8 }, (_, i) => i + 1).map(period => (
+                        <th key={period} style={{
+                          padding: '1rem',
+                          border: '1px solid var(--border-color)',
+                          background: 'var(--light-blue-bg)',
+                          fontWeight: '600',
+                          color: 'var(--primary-text)',
+                          minWidth: '120px'
+                        }}>Period {period}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map(day => (
+                      <tr key={day}>
+                        <td style={{
+                          padding: '1rem',
+                          border: '1px solid var(--border-color)',
+                          fontWeight: '600',
+                          background: 'var(--light-blue-bg)',
+                          color: 'var(--primary-text)'
+                        }}>{day}</td>
+                        {Array.from({ length: 8 }, (_, i) => i + 1).map(period => (
+                          <td key={period} style={{
+                            padding: '0.5rem',
+                            border: '1px solid var(--border-color)',
+                            background: 'var(--card-bg)'
+                          }}>
+                            <input
+                              type="text"
+                              value={timetable[selectedClass]?.[selectedStream]?.[day]?.[period.toString()] || ''}
+                              onChange={(e) => handleTimetableChange(day, period.toString(), e.target.value)}
+                              placeholder="Subject"
+                              style={{
+                                width: '100%',
+                                padding: '0.5rem',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '4px',
+                                background: 'var(--input-bg)',
+                                color: 'var(--primary-text)',
+                                fontSize: '0.9rem'
+                              }}
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div style={{
+                marginTop: '2rem',
+                padding: '1rem',
+                background: 'var(--warning-bg)',
+                border: '1px solid var(--warning-border)',
+                borderRadius: '8px',
+                color: 'var(--warning-text)',
+                fontSize: '0.9rem'
+              }}>
+                <strong>Note:</strong> Changes are automatically saved to the server. For classes 8-10, only "General" stream is available.
               </div>
             </div>
           )}
