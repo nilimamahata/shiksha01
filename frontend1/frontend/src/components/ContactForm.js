@@ -5,10 +5,10 @@ const ContactForm = () => {
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-6">
       <div className="bg-white shadow-lg rounded-lg p-8 max-w-3xl w-full">
         <h2 className="text-3xl font-bold mb-4">
-           <span className="text-green-800">Contact US</span>
+           <span className="text-green-800">Feedback</span>
         </h2>
         <p className="text-gray-600 mb-8">
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+          " We’d love to hear from you! Your feedback helps us improve and serve you better"
         </p>
 
         <form className="grid grid-cols-1 md:grid-cols-2 gap-6">

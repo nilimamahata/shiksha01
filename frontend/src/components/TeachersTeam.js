@@ -5,7 +5,7 @@ const TeachersTeam = () => {
   const teamMembers = [
     {
       name: "Janet Lalhmangaihzuali",
-      qualification: "Bachelor of History",
+      qualification: "Bachelor of Arts",
       subject: "History",
       
     },
@@ -73,18 +73,13 @@ const TeachersTeam = () => {
      
     },
     {
-      name: "Lalduhsaka",
-      qualification: "M.A(Political Science) ",
-      subject: "Political Science",
-    },
-    {
       name: "V.Lalrindika",
       qualification: "M.Sc(Geography), B.Ed ",
       subject: "Geography",
     },
     {
       name: "Jayson Lalrindika",
-      qualification: "Bachelor of Biotechnology", 
+      qualification: "Bachelor of Science (Biotechnology)", 
       subject: "Biology",
     }
     

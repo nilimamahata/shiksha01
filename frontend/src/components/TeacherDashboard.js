@@ -5,6 +5,8 @@ import io from 'socket.io-client';
 import './TeacherDashboard.css';
 import DashboardLayout from './DashboardLayout';
 import ChatPage from './ChatPage';
+import LiveClassScheduler from './LiveClassScheduler';
+import VideoUploader from './VideoUploader';
 
 const TeacherDashboard = ({ username, onLogout }) => {
   const navigate = useNavigate();
@@ -17,6 +19,8 @@ const TeacherDashboard = ({ username, onLogout }) => {
   const [courses, setCourses] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [tests, setTests] = useState([]);
+  const [liveClasses, setLiveClasses] = useState([]);
+  const [recordedVideos, setRecordedVideos] = useState([]);
   const [teacherData, setTeacherData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('courses');
@@ -29,6 +33,10 @@ const TeacherDashboard = ({ username, onLogout }) => {
   const [showTestModal, setShowTestModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingMaterial, setEditingMaterial] = useState(null);
+  const [showLiveClassModal, setShowLiveClassModal] = useState(false);
+  const [showVideoUploadModal, setShowVideoUploadModal] = useState(false);
+  const [showVideoPlayer, setShowVideoPlayer] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState(null);
 
 
   // State for Video Calling
@@ -115,6 +123,22 @@ const TeacherDashboard = ({ username, onLogout }) => {
         const testsData = await testsResponse.json();
         console.log('📝 Tests loaded:', testsData.length);
         setTests(testsData);
+      }
+
+      // Fetch live classes created by this teacher
+      const liveClassesResponse = await fetch(`http://localhost:5001/api/live-classes/teacher/${teacherId}`);
+      if (liveClassesResponse.ok) {
+        const liveClassesData = await liveClassesResponse.json();
+        console.log('📹 Live classes loaded:', liveClassesData.length);
+        setLiveClasses(liveClassesData);
+      }
+
+      // Fetch recorded videos uploaded by this teacher
+      const recordedVideosResponse = await fetch(`http://localhost:5001/api/recorded-videos/teacher/${teacherId}`);
+      if (recordedVideosResponse.ok) {
+        const recordedVideosData = await recordedVideosResponse.json();
+        console.log('🎥 Recorded videos loaded:', recordedVideosData.length);
+        setRecordedVideos(recordedVideosData);
       }
 
     } catch (error) {
@@ -424,6 +448,31 @@ const TeacherDashboard = ({ username, onLogout }) => {
         fetchTeacherData(); // Refresh data
       } else {
         throw new Error('Failed to delete test.');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert(error.message);
+    }
+  };
+
+  const handlePlayVideo = (video) => {
+    setSelectedVideo(video);
+    setShowVideoPlayer(true);
+  };
+
+  const handleDeleteVideo = async (videoId) => {
+    if (!window.confirm('Are you sure you want to delete this video?')) return;
+
+    try {
+      const response = await fetch(`http://localhost:5001/api/recorded-videos/${videoId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        alert('Video deleted successfully!');
+        fetchTeacherData(); // Refresh data
+      } else {
+        throw new Error('Failed to delete video.');
       }
     } catch (error) {
       console.error('Delete error:', error);
@@ -906,10 +955,10 @@ const TeacherDashboard = ({ username, onLogout }) => {
     { key: 'courses', label: 'Courses', icon: '📚' },
     { key: 'materials', label: 'Materials', icon: '📄' },
     { key: 'quiz', label: 'Quizzes', icon: '📝' },
+    { key: 'live-classes', label: 'Live Classes', icon: '📹' },
+    { key: 'recorded-videos', label: 'Recorded Videos', icon: '🎥' },
     { key: 'assignments', label: 'Assignments', icon: '📋' },
     { key: 'announcement', label: 'Announcements', icon: '📢' },
-    { key: 'upload-video', label: 'Upload Video', icon: '🎥' },
-    { key: 'live', label: 'Live Class', icon: '📹' },
     { key: 'schedule', label: 'Schedule', icon: '📅' },
     { key: 'chat', label: 'Chat', icon: '💬' },
     { key: 'settings', label: 'Settings', icon: '⚙️' }
@@ -1122,6 +1171,18 @@ const TeacherDashboard = ({ username, onLogout }) => {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {activeTab === 'live-classes' && (
+          <div className="teacher-live-classes">
+            <LiveClassScheduler teacherId={localStorage.getItem('teacherId') || username} />
+          </div>
+        )}
+
+        {activeTab === 'recorded-videos' && (
+          <div className="teacher-recorded-videos">
+            <VideoUploader teacherId={localStorage.getItem('teacherId') || username} />
           </div>
         )}
 

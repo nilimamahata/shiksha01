@@ -7,11 +7,10 @@ const ContactPage = () => {
       <div className="contact-container">
         <div className="contact-text">
           <h2>
-            Contact <span>us</span>
+            Feed <span>back</span>
           </h2>
           <p>
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua."
+            "We’d love to hear from you! Your feedback helps us improve and serve you better."
           </p>
           <p className="contact-email">email@gmail.com</p>
         </div>

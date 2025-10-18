@@ -10,9 +10,8 @@ const Footer = () => {
         <div className="footer-brand">
           <h2>Shiksha<span> </span></h2>
           <p>
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit,</p>
-          <p> sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-          </p>
+            "Empowerment  through  Education "</p>
+         
           <div className="flex">
             <div className="address">
               <h4>Address</h4>

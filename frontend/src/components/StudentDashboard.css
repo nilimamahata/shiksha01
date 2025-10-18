@@ -1564,41 +1564,181 @@ body, html, #root {
   color: #ef4444;
 }
 
-/* --- Responsive Design --- */
-@media (max-width: 1200px) {
-  .top-row {
-    flex-direction: column;
-  }
-  .progress-assignments-card {
-    width: 100%;
-  }
+/* --- Live Classes Section --- */
+.live-classes-section {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  margin-bottom: 2rem;
 }
 
-@media (max-width: 992px) {
-  .bottom-row {
-    flex-direction: column;
-  }
-  .schedule-card {
-    width: 100%;
-  }
+.live-classes-section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-text);
+  margin: 0 0 1rem 0;
 }
 
-@media (max-width: 768px) {
-  .sidebar {
-    display: none; /* Example: hide sidebar on small screens */
-  }
-  .dashboard-layout {
-    padding: 1rem;
-  }
-  .header {
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
-  }
-  .stats-container {
-    flex-direction: column;
-  }
-  .settings-content {
-    grid-template-columns: 1fr;
-  }
+.live-classes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+/* --- Recorded Videos Section --- */
+.recorded-videos-section {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  margin-bottom: 2rem;
+}
+
+.recorded-videos-section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-text);
+  margin: 0 0 1rem 0;
+}
+
+.videos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.video-card {
+  background: var(--light-blue-bg);
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.video-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.video-thumbnail {
+  position: relative;
+  width: 100%;
+  height: 150px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.video-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.play-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  color: white;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-info h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary-text);
+  margin: 0 0 0.5rem 0;
+}
+
+.video-info p {
+  font-size: 0.875rem;
+  color: var(--secondary-text);
+  margin: 0;
+}
+
+/* --- Materials Section --- */
+.materials-section {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  margin-bottom: 2rem;
+}
+
+.materials-section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-text);
+  margin: 0 0 1rem 0;
+}
+
+.materials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+/* --- Video Player Modal --- */
+.video-player-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.video-player-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.video-player-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.close-btn {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+}
+
+.close-btn:hover {
+  background: #4F46E5;
 }

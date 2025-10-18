@@ -1,38 +1,54 @@
-// backend/routes/materialRoutes.js
-
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const materialController = require('../controllers/materialController');
+const {
+  uploadMaterial,
+  getMaterialsByCourse,
+  getMaterialsByTeacher,
+  getStudentMaterials,
+  updateMaterial,
+  deleteMaterial,
+  getAllMaterials
+} = require('../controllers/materialController');
+const { verifyToken } = require('../middleware/auth');
 
 const router = express.Router();
 
-// --- Multer Storage Configuration ---
-// This tells Multer where to save the files and how to name them.
+// Multer configuration for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Files will be saved in the 'backend/uploads/' directory
-    cb(null, 'uploads/');
+    const uploadDir = 'uploads/';
+    // Ensure directory exists
+    require('fs').mkdirSync(uploadDir, { recursive: true });
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    // The filename will be unique: timestamp + original name
     cb(null, `${Date.now()}-${file.originalname}`);
   }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 50 * 1024 * 1024 // 50MB limit
+  }
+});
 
-// --- Define API Routes ---
+// Student routes (no auth required for viewing materials)
+router.get('/student/:class/:subject', getStudentMaterials);
+router.get('/student/:class', getStudentMaterials);
+router.get('/course/:courseId', getMaterialsByCourse);
 
-// POST /api/materials/upload
-// The 'upload.single('materialFile')' part is the middleware.
-// It tells Multer to expect a single file from a form field named 'materialFile'.
-router.post('/upload', upload.single('materialFile'), materialController.uploadMaterial);
+// All other routes require authentication
+router.use(verifyToken);
 
-// GET /api/materials/course/:courseId
-router.get('/course/:courseId', materialController.getMaterialsByCourse);
+// Teacher routes
+router.post('/upload', upload.single('materialFile'), uploadMaterial);
+router.get('/teacher/:teacherId', getMaterialsByTeacher);
+router.put('/:id', updateMaterial);
+router.delete('/:id', deleteMaterial);
 
-// DELETE /api/materials/:id
-router.delete('/:id', materialController.deleteMaterial);
+// Admin routes
+router.get('/all', getAllMaterials);
 
 module.exports = router;

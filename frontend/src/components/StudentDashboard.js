@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './StudentDashboard.css';
 import StudentSchedule from './StudentSchedule';
+import QuizPage from './QuizPage';
+import StudentSettings from './StudentSettings';
+import LiveClassCard from './LiveClassCard';
+import VideoPlayer from './VideoPlayer';
+import MaterialCard from './MaterialCard';
 
 const StudentDashboard = ({ username, onLogout }) => {
   const navigate = useNavigate();
@@ -9,12 +14,23 @@ const StudentDashboard = ({ username, onLogout }) => {
 
   // --- NEW STATE FOR SHIKSHA DASHBOARD ---
   const [activeNavItem, setActiveNavItem] = useState('dashboard');
+  const [liveClassesView, setLiveClassesView] = useState([]);
+  const [recordedVideosView, setRecordedVideosView] = useState([]);
+  const [materialsView, setMaterialsView] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [quizData, setQuizData] = useState([]);
   const [currentQuiz, setCurrentQuiz] = useState(null);
   const [quizAnswers, setQuizAnswers] = useState({});
   const [quizTimeLeft, setQuizTimeLeft] = useState(0);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
+
+  // New state for Live Classes, Recorded Videos, and Materials
+  const [liveClasses, setLiveClasses] = useState([]);
+  const [recordedVideos, setRecordedVideos] = useState([]);
+  const [materials, setMaterials] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [showVideoPlayer, setShowVideoPlayer] = useState(false);
 
   // Get user's first name from username/email
   const getUserFirstName = (username) => {
@@ -273,12 +289,73 @@ const StudentDashboard = ({ username, onLogout }) => {
     alert(`Opening ${subjectName} - ${chapter}. Here you would see the actual lesson content, videos, materials, etc.`);
   };
 
+  // Fetch live classes, recorded videos, and materials
+  const fetchLiveClasses = async () => {
+    try {
+      const response = await fetch('http://localhost:5001/api/live-classes');
+      if (response.ok) {
+        const data = await response.json();
+        setLiveClasses(data.liveClasses || []);
+      }
+    } catch (error) {
+      console.error('Error fetching live classes:', error);
+    }
+  };
+
+  const fetchRecordedVideos = async () => {
+    try {
+      const response = await fetch('http://localhost:5001/api/recorded-videos');
+      if (response.ok) {
+        const data = await response.json();
+        setRecordedVideos(data.videos || []);
+      }
+    } catch (error) {
+      console.error('Error fetching recorded videos:', error);
+    }
+  };
+
+  const fetchMaterials = async () => {
+    try {
+      const response = await fetch('http://localhost:5001/api/materials/student/10/all');
+      if (response.ok) {
+        const data = await response.json();
+        setMaterials(data.materials || []);
+      }
+    } catch (error) {
+      console.error('Error fetching materials:', error);
+    }
+  };
+
+  // Handle video selection for playing
+  const handleVideoSelect = (video) => {
+    setSelectedVideo(video);
+    setShowVideoPlayer(true);
+  };
+
+  // Handle material download
+  const handleMaterialDownload = (material) => {
+    // In a real app, this would trigger a download
+    alert(`Downloading ${material.title}...`);
+  };
+
+  // Handle joining live class
+  const handleJoinLiveClass = (liveClass) => {
+    // In a real app, this would open the live class in a video conference
+    alert(`Joining live class: ${liveClass.title}`);
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchLiveClasses();
+    fetchRecordedVideos();
+    fetchMaterials();
   }, []);
 
 
@@ -302,8 +379,7 @@ const StudentDashboard = ({ username, onLogout }) => {
         // Show schedule content in dashboard
         break;
       case 'settings':
-        // For now, navigate to home - you can create a settings page later
-        navigate('/');
+        // Show settings content in dashboard
         break;
       case 'quiz':
         // Stay on dashboard and show quiz content
@@ -386,18 +462,39 @@ const StudentDashboard = ({ username, onLogout }) => {
             <span className="nav-text">Schedule</span>
           </div>
           <div
-            className={`nav-item ${activeNavItem === 'settings' ? 'active' : ''}`}
-            onClick={() => handleNavClick('settings')}
-          >
-            <span className="nav-icon">⚙️</span>
-            <span className="nav-text">Settings</span>
-          </div>
-          <div
             className={`nav-item ${activeNavItem === 'quiz' ? 'active' : ''}`}
             onClick={() => handleNavClick('quiz')}
           >
             <span className="nav-icon">📝</span>
             <span className="nav-text">Quiz</span>
+          </div>
+          <div
+            className={`nav-item ${activeNavItem === 'live-classes' ? 'active' : ''}`}
+            onClick={() => handleNavClick('live-classes')}
+          >
+            <span className="nav-icon">🎥</span>
+            <span className="nav-text">Live Classes</span>
+          </div>
+          <div
+            className={`nav-item ${activeNavItem === 'recorded-videos' ? 'active' : ''}`}
+            onClick={() => handleNavClick('recorded-videos')}
+          >
+            <span className="nav-icon">📹</span>
+            <span className="nav-text">Recorded Videos</span>
+          </div>
+          <div
+            className={`nav-item ${activeNavItem === 'materials' ? 'active' : ''}`}
+            onClick={() => handleNavClick('materials')}
+          >
+            <span className="nav-icon">📄</span>
+            <span className="nav-text">Materials</span>
+          </div>
+          <div
+            className={`nav-item ${activeNavItem === 'settings' ? 'active' : ''}`}
+            onClick={() => handleNavClick('settings')}
+          >
+            <span className="nav-icon">⚙️</span>
+            <span className="nav-text">Settings</span>
           </div>
         </nav>
 
@@ -430,6 +527,67 @@ const StudentDashboard = ({ username, onLogout }) => {
         {/* Dashboard Content */}
         {activeNavItem === 'schedule' ? (
           <StudentSchedule studentClass={8} studentStream="general" />
+        ) : activeNavItem === 'quiz' ? (
+          <QuizPage studentId={username} onBack={() => setActiveNavItem('dashboard')} />
+        ) : activeNavItem === 'settings' ? (
+          <StudentSettings username={username} onBack={() => setActiveNavItem('dashboard')} />
+        ) : activeNavItem === 'live-classes' ? (
+          <div className="live-classes-view">
+            <h1>Live Classes</h1>
+            <div className="live-classes-grid">
+              {liveClasses.length > 0 ? (
+                liveClasses.map(liveClass => (
+                  <LiveClassCard
+                    key={liveClass.id}
+                    liveClass={liveClass}
+                    onJoin={handleJoinLiveClass}
+                  />
+                ))
+              ) : (
+                <p>No live classes scheduled.</p>
+              )}
+            </div>
+          </div>
+        ) : activeNavItem === 'recorded-videos' ? (
+          <div className="recorded-videos-view">
+            <h1>Recorded Videos</h1>
+            <div className="videos-grid">
+              {recordedVideos.length > 0 ? (
+                recordedVideos.map(video => (
+                  <div key={video.id} className="video-card" onClick={() => handleVideoSelect(video)}>
+                    <div className="video-thumbnail">
+                      <img src={video.thumbnail || '/images/video-placeholder.png'} alt={video.title} />
+                      <div className="play-icon">▶️</div>
+                    </div>
+                    <div className="video-info">
+                      <h3>{video.title}</h3>
+                      <p>{video.subject} - {video.chapter}</p>
+                      <p>Duration: {video.duration}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p>No recorded videos available.</p>
+              )}
+            </div>
+          </div>
+        ) : activeNavItem === 'materials' ? (
+          <div className="materials-view">
+            <h1>Study Materials</h1>
+            <div className="materials-grid">
+              {materials.length > 0 ? (
+                materials.map(material => (
+                  <MaterialCard
+                    key={material.id}
+                    material={material}
+                    onDownload={handleMaterialDownload}
+                  />
+                ))
+              ) : (
+                <p>No study materials available.</p>
+              )}
+            </div>
+          </div>
         ) : (
           <div className="dashboard-content">
             {/* Stats Cards */}
@@ -503,6 +661,19 @@ const StudentDashboard = ({ username, onLogout }) => {
                   </div>
                 </div>
               ))}
+            </div>
+
+
+          </div>
+        )}
+
+        {/* Video Player Modal */}
+        {showVideoPlayer && selectedVideo && (
+          <div className="video-player-modal">
+            <div className="video-player-overlay" onClick={() => setShowVideoPlayer(false)}></div>
+            <div className="video-player-content">
+              <button className="close-btn" onClick={() => setShowVideoPlayer(false)}>✕</button>
+              <VideoPlayer video={selectedVideo} />
             </div>
           </div>
         )}

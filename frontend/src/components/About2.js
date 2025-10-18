@@ -22,6 +22,7 @@ const About2 = () => {
           <p>
             To provide learners with the skills and knowledge they need to thrive in the modern world.
           </p>
+          
         </div>
 
         <div className="about2-card" onClick={() => navigate('/mission')} style={{ cursor: 'pointer' }}>

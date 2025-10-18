@@ -26,7 +26,7 @@ const DevelopersTeam = () => {
     {
       name: "John Lalruatpuia",
       role: "Developer",
-      email: "john@gmail.com",
+      email: "johnruatpuia@gmail.com",
       image: JohnImage
 
     },
