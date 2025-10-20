@@ -63,7 +63,7 @@ const About2 = () => {
             <p>Leadership and vision</p>
             <Link to="/team/ceo-founder">
               <button className="team-button">
-                <FaArrowRight />
+                →
               </button>
             </Link>
           </div>
@@ -72,7 +72,7 @@ const About2 = () => {
             <p>Educators and content creators</p>
             <Link to="/team/teachers">
               <button className="team-button">
-                <FaArrowRight />
+                →
               </button>
             </Link>
           </div>
@@ -81,7 +81,7 @@ const About2 = () => {
             <p>Technology and innovation</p>
             <Link to="/team/developers">
               <button className="team-button">
-                <FaArrowRight />
+                →
               </button>
             </Link>
           </div>

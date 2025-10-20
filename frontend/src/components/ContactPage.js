@@ -12,7 +12,7 @@ const ContactPage = () => {
           <p>
             "We’d love to hear from you! Your feedback helps us improve and serve you better."
           </p>
-          <p className="contact-email">email@gmail.com</p>
+          <p className="contact-email">info@shikshacom.com</p>
         </div>
 
         <form className="contact-form">

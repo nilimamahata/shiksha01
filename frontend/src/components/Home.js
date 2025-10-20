@@ -34,7 +34,7 @@ const Home = () => {
       <div className="home-card">
         <h1>Welcome to <span className="brand-name-home">Shiksha</span></h1>
         <p className="initial-text">Your gateway to live and recorded classes from Class 8 to 12, virtual education accessible anywhere!</p>
-        <p className="comfort-text">Learn at your comfort from Shiksha</p>
+        <p className="comfort-text">"Empowerment through Education"</p>
         <button className="get-started-btn" onClick={() => navigate('/courses')}>Get Started</button>
 
       </div>

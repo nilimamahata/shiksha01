@@ -119,7 +119,7 @@ button {
 }
 
 button:hover:not(:disabled) {
-  background: #0056b3;
+  background: #c4af87;
 }
 
 button:disabled {

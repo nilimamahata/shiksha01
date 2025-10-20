@@ -101,8 +101,8 @@
 }
 
 .team-button {
-  background-color: #d9c7a1;
-  color: #333;
+  background-color: #c4af87;
+  color: white;
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -112,10 +112,12 @@
   justify-content: center;
   cursor: pointer;
   transition: background 0.3s ease;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 .team-button:hover {
-  background-color: #b8a177;
+  background-color: #d9c7a1;
 }
 
 /* Responsive */

@@ -7,7 +7,7 @@ const CeoFounderTeam = () => {
       name: "Dhanandjay  Kumar",
       role: "CEO & Founder",
       bio: "he is the visionary behind Shiksha, with over 20 years of experience in education technology. He founded the company to revolutionize online learning.",
-      email: "shikshacom.com",
+      email: "info@shikshacom.com",
     }
   ];
 
